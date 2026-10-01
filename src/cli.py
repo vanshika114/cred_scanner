@@ -1,6 +1,6 @@
 import argparse
 import sys
-from scanner import SecretScanner
+from .scanner import SecretScanner
 
 def main():
     parser = argparse.ArgumentParser(
