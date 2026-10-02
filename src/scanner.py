@@ -6,7 +6,7 @@ from datetime import datetime
 
 # Secret patterns to detect
 PATTERNS = {
-    'api_key': r'(api[_-]?key|apikey)[\'"]?\s*[:=]\s*[\'"]?([a-zA-Z0-9_\-]+)',
+    'api_key': r'(api[_-]?key|apikey)\s*[:=]', 
     'password': r'(password|passwd|pwd)[\'"]?\s*[:=]\s*[\'"]([^\'"\n]+)[\'"]',
     'database_url': r'(postgres|mysql|mongodb|redis)://[^\s\n]+',
     'aws_access_key': r'AKIA[0-9A-Z]{16}',
