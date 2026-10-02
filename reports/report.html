@@ -1,0 +1,58 @@
+
+        <html>
+        <head>
+            <title>Secret Scanner Report</title>
+            <style>
+                body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+                h1 { color: #333; }
+                .summary { background: white; padding: 15px; border-radius: 5px; margin: 20px 0; }
+                table { width: 100%; border-collapse: collapse; background: white; }
+                th { background: #333; color: white; padding: 10px; text-align: left; }
+                td { padding: 10px; border-bottom: 1px solid #ddd; }
+                .CRITICAL { background: #ffcccc; color: #cc0000; font-weight: bold; }
+                .HIGH { background: #ffe6cc; color: #ff6600; font-weight: bold; }
+                .MEDIUM { background: #ffffcc; color: #ff9900; font-weight: bold; }
+                tr:hover { background: #f9f9f9; }
+            </style>
+        </head>
+        <body>
+            <h1>🔐 Secret Scanner Report</h1>
+        <div class='summary'><h2>Summary</h2><p><strong>Total Secrets Found:</strong> 3</p><p><span class='HIGH'>HIGH</span>: 2</p><p><span class='MEDIUM'>MEDIUM</span>: 1</p></div>
+        <h2>Findings</h2>
+        <table>
+            <tr>
+                <th>Severity</th>
+                <th>Type</th>
+                <th>File</th>
+                <th>Line</th>
+                <th>Match Preview</th>
+            </tr>
+        
+            <tr>
+                <td class="HIGH">HIGH</td>
+                <td>database_url</td>
+                <td>test_data\..env</td>
+                <td>1</td>
+                <td><code>postgres://user:password@localhost/db</code></td>
+            </tr>
+            
+            <tr>
+                <td class="MEDIUM">MEDIUM</td>
+                <td>api_key</td>
+                <td>test_data\config.py</td>
+                <td>1</td>
+                <td><code>api_key = 'sk-1234567890abcdef</code></td>
+            </tr>
+            
+            <tr>
+                <td class="HIGH">HIGH</td>
+                <td>password</td>
+                <td>test_data\config.py</td>
+                <td>2</td>
+                <td><code>password = 'admin123'</code></td>
+            </tr>
+            
+        </table>
+        </body>
+        </html>
+        

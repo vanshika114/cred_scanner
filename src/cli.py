@@ -1,4 +1,5 @@
 import argparse
+from html import parser
 import sys
 from .scanner import SecretScanner
 
@@ -9,6 +10,7 @@ def main():
     parser.add_argument('path', help='Directory to scan')
     parser.add_argument('--output', '-o', default='findings.json', help='Output JSON file')
     parser.add_argument('--verbose', '-v', action='store_true', help='Show all details')
+    parser.add_argument('--html', action='store_true', help='Generate HTML report')
     
     args = parser.parse_args()
     
@@ -16,6 +18,8 @@ def main():
     findings = scanner.scan_directory(args.path)
     
     scanner.print_summary()
+    if args.html:
+        scanner.generate_html_report('reports/report.html')
     
     if findings:
         scanner.save_json(args.output)

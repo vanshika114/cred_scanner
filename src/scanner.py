@@ -101,3 +101,78 @@ class SecretScanner:
         print("\nTop findings:")
         for i, finding in enumerate(self.findings[:5], 1):
             print(f"  {i}. [{finding['severity']}] {finding['type']} in {finding['file']}:{finding['line']}")
+
+    def generate_html_report(self, output_file='report.html'):
+        """Generate HTML report from findings"""
+    
+        html = """
+        <html>
+        <head>
+            <title>Secret Scanner Report</title>
+            <style>
+                body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+                h1 { color: #333; }
+                .summary { background: white; padding: 15px; border-radius: 5px; margin: 20px 0; }
+                table { width: 100%; border-collapse: collapse; background: white; }
+                th { background: #333; color: white; padding: 10px; text-align: left; }
+                td { padding: 10px; border-bottom: 1px solid #ddd; }
+                .CRITICAL { background: #ffcccc; color: #cc0000; font-weight: bold; }
+                .HIGH { background: #ffe6cc; color: #ff6600; font-weight: bold; }
+                .MEDIUM { background: #ffffcc; color: #ff9900; font-weight: bold; }
+                tr:hover { background: #f9f9f9; }
+            </style>
+        </head>
+        <body>
+            <h1>🔐 Secret Scanner Report</h1>
+        """
+    
+    # Summary
+        if self.findings:
+            by_severity = {}
+            for finding in self.findings:
+                sev = finding['severity']
+                by_severity[sev] = by_severity.get(sev, 0) + 1
+        
+            html += f"<div class='summary'><h2>Summary</h2>"
+            html += f"<p><strong>Total Secrets Found:</strong> {len(self.findings)}</p>"
+            for severity in ['CRITICAL', 'HIGH', 'MEDIUM']:
+                if severity in by_severity:
+                    html += f"<p><span class='{severity}'>{severity}</span>: {by_severity[severity]}</p>"
+            html += "</div>"
+        else:
+            html += "<div class='summary'><p>✨ No secrets found!</p></div>"
+    
+    # Table
+        html += """
+        <h2>Findings</h2>
+        <table>
+            <tr>
+                <th>Severity</th>
+                <th>Type</th>
+                <th>File</th>
+                <th>Line</th>
+                <th>Match Preview</th>
+            </tr>
+        """
+    
+        for finding in self.findings:
+            html += f"""
+            <tr>
+                <td class="{finding['severity']}">{finding['severity']}</td>
+                <td>{finding['type']}</td>
+                <td>{finding['file']}</td>
+                <td>{finding['line']}</td>
+                <td><code>{finding['match_preview']}</code></td>
+            </tr>
+            """
+    
+        html += """
+        </table>
+        </body>
+        </html>
+        """
+    
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(html)
+    
+        print(f"📄 HTML report saved to {output_file}")
