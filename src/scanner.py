@@ -1,8 +1,11 @@
+import math
 import re
 import os
 from pathlib import Path
 import json
 from datetime import datetime
+
+
 
 # Secret patterns to detect
 PATTERNS = {
@@ -176,3 +179,58 @@ class SecretScanner:
             f.write(html)
     
         print(f"📄 HTML report saved to {output_file}")
+
+    @staticmethod
+    def calculate_entropy(s):
+        """Calculate Shannon entropy of a string"""
+        if len(s) == 0:
+            return 0
+    
+        entropy = 0
+        for i in range(256):
+            p_x = s.count(chr(i)) / len(s)
+            if p_x > 0:
+                entropy += -p_x * math.log2(p_x)
+    
+        return entropy
+
+    # def _scan_file(self, file_path):
+    #     """Scan single file for secrets"""
+    #     try:
+    #         if file_path.suffix in ['.pyc', '.so', '.o', '.bin', '.pdf']:
+    #             return
+        
+    #         content = file_path.read_text(errors='ignore')
+        
+    #     # Existing pattern matching
+    #         for secret_type, pattern in PATTERNS.items():
+    #             matches = re.finditer(pattern, content, re.IGNORECASE)
+    #             for match in matches:
+    #                 line_num = content[:match.start()].count('\n') + 1
+    #                 self.findings.append({
+    #                     'file': str(file_path),
+    #                     'type': secret_type,
+    #                     'line': line_num,
+    #                     'severity': self._get_severity(secret_type),
+    #                     'match_preview': match.group(0)[:50]
+    #                 })
+        
+    #     # NEW: Entropy-based detection
+    #         words = re.findall(r'\b[a-zA-Z0-9_\-\.]{8,}\b', content)
+    #         for word in words:
+    #             entropy = SecretScanner.calculate_entropy(word)
+    #             if entropy > 4.0:  # High entropy threshold
+    #                 # Skip common words
+    #                 if word.lower() not in ['localhost', 'database', 'configuration']:
+    #                     line_num = content.find(word) // len(content) * content.count('\n') + 1
+    #                     self.findings.append({
+    #                         'file': str(file_path),
+    #                         'type': 'high_entropy_string',
+    #                         'line': line_num,
+    #                         'severity': 'MEDIUM',
+    #                         'match_preview': word[:50]
+    #                     })
+    
+    #     except Exception as e:
+    #         print(f"⚠️  Error scanning {file_path}: {e}")
+
