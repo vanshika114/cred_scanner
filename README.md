@@ -4,10 +4,12 @@ Automatically detect exposed credentials in your codebase before they reach prod
 
 ## Features
 - **Pattern-based detection** - Finds API keys, passwords, database URLs, AWS keys, SSH keys, tokens
+- **Entropy-based detection** - Identifies high-entropy strings likely to be secrets
 - **JSON reports** - Machine-readable output for CI/CD integration
 - **HTML reports** - Visual dashboard of findings with severity levels
 - **Command-line interface** - Easy to use for local scanning
 - **Pre-commit hook** - Blocks commits with secrets automatically
+- **Exclusion support** - Skip specific files/folders (README, examples, etc.)
 - **Severity scoring** - Labels findings as CRITICAL, HIGH, or MEDIUM
 
 ## Installation
@@ -37,6 +39,11 @@ python -m src.cli /path/to/scan --output findings.json
 python -m src.cli /path/to/scan --html
 ```
 
+### Exclude Files
+```bash
+python -m src.cli . --exclude README.md,examples/
+```
+
 ### View HTML Report
 ```bash
 start reports/report.html  # Windows
@@ -54,6 +61,7 @@ open reports/report.html   # Mac
 | GitHub Tokens | `ghp_1234567890abcdefghijklmnop` | CRITICAL |
 | SSH Private Keys | `-----BEGIN RSA PRIVATE KEY-----` | CRITICAL |
 | Slack Tokens | `xoxb-1234567890123-1234567890123` | CRITICAL |
+| High-Entropy Strings | Random-looking strings | MEDIUM |
 
 ## Features Explained
 
@@ -69,7 +77,20 @@ if re.search(r'api[_-]?key\s*[:=]', content):
     # Found a secret!
 ```
 
-### 2. Pre-Commit Hook
+### 2. Entropy-Based Detection
+Finds high-entropy strings (8+ characters with randomness) that likely contain secrets, even without pattern matches.
+
+**How it works:**
+- Calculates Shannon entropy for each word
+- Entropy > 4.5 = likely a secret
+- Example: `aK9$mP2@xL7` has high entropy (random), `admin123` has low entropy (predictable)
+
+**Why it matters:**
+- Catches API keys without standard prefixes
+- Finds custom secret formats
+- Reduces false negatives from pattern matching alone
+
+### 3. Pre-Commit Hook
 Runs automatically before you push code to GitHub. If secrets are found:
 - ❌ Commit is blocked
 - You fix the secrets
@@ -85,7 +106,7 @@ Secrets found! Fix before committing.
 # Fix the file, then commit again
 ```
 
-### 3. HTML Reports
+### 4. HTML Reports
 Visual dashboard showing:
 - Total secrets found
 - Breakdown by severity (CRITICAL/HIGH/MEDIUM)
@@ -94,7 +115,19 @@ Visual dashboard showing:
 
 **Usage:** `python -m src.cli . --html`
 
-### 4. JSON Reports
+### 5. Exclusion Support
+Skip false positives in documentation and examples:
+
+```bash
+python -m src.cli . --exclude README.md,examples/
+```
+
+Useful for:
+- Keeping secret examples in documentation
+- Excluding third-party dependencies
+- Skipping non-source files
+
+### 6. JSON Reports
 Machine-readable format for integration with:
 - GitHub Actions (CI/CD)
 - Slack notifications
@@ -137,11 +170,15 @@ $ git push
 
 ## Roadmap
 
-- [ ] **Entropy-based detection** - Find high-entropy strings (likely secrets) even without pattern matches
+- [x] **Pattern-based detection** - Regex patterns for common secrets
+- [x] **Entropy-based detection** - Shannon entropy for high-randomness strings
+- [x] **Pre-commit hook** - Prevent secrets from reaching GitHub
+- [x] **HTML/JSON reports** - Visual and machine-readable output
 - [ ] **GitHub Actions CI/CD** - Automatically scan on every push
 - [ ] **Slack notifications** - Alert team when secrets are found
-- [ ] **Ignore list** - Whitelist false positives
+- [ ] **Whitelist/ignore list** - Configurable false positives
 - [ ] **Performance optimization** - Faster scanning for large repos
+- [ ] **Machine learning model** - ML-based secret detection
 
 ## Why This Matters
 
@@ -151,8 +188,5 @@ Exposed secrets are the #1 cause of data breaches. This tool:
 - Demonstrates security awareness to employers
 - Integrates into real development workflows
 
-<img width="1107" height="486" alt="image" src="https://github.com/user-attachments/assets/d36d4935-861e-4099-bf80-e18be1be91b2" />
 
-
-## License
-MIT
+<img width="1107" height="486" alt="image" src="https://github.com/user-attachments/assets/6a726cd9-bec4-4ad5-ac5f-2dc73c328a51" />
