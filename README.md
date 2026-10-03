@@ -190,3 +190,7 @@ Exposed secrets are the #1 cause of data breaches. This tool:
 
 
 <img width="1107" height="486" alt="image" src="https://github.com/user-attachments/assets/6a726cd9-bec4-4ad5-ac5f-2dc73c328a51" />
+
+
+<img width="554" height="284" alt="image" src="https://github.com/user-attachments/assets/c18f0f94-7740-4350-9db2-1e91d091bf58" />
+
