@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
     
     scanner = SecretScanner()
-    findings = scanner.scan_directory(args.path)
+    findings = scanner.scan_directory(args.path, exclude=args.exclude)
     
     scanner.print_summary()
     if args.html:

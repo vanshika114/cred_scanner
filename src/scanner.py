@@ -5,6 +5,8 @@ from pathlib import Path
 import json
 from datetime import datetime
 
+from polars import exclude
+
 
 
 # Secret patterns to detect
@@ -25,18 +27,23 @@ class SecretScanner:
     def __init__(self):
         self.findings = []
     
-    def scan_directory(self, root_path):
+    def scan_directory(self, root_path, exclude=''):
         """Scan directory recursively for secrets"""
+        exclude_list = [e.strip() for e in exclude.split(',') if e.strip()]
         print(f"🔍 Scanning {root_path}...")
-        
+    
         for file in Path(root_path).rglob('*'):
-            # Skip ignored paths
-            if any(ignored in file.parts for ignored in IGNORE_PATHS):
-                continue
-            
-            if file.is_file():
-                self._scan_file(file)
+        # Skip ignored paths
+             if any(ignored in file.parts for ignored in IGNORE_PATHS):
+                 continue
         
+        # Skip excluded paths
+             if any(exc in str(file) for exc in exclude_list):
+                 continue
+        
+             if file.is_file():
+                 self._scan_file(file)
+    
         return self.findings
     
     def _scan_file(self, file_path):
@@ -194,43 +201,43 @@ class SecretScanner:
     
         return entropy
 
-    # def _scan_file(self, file_path):
-    #     """Scan single file for secrets"""
-    #     try:
-    #         if file_path.suffix in ['.pyc', '.so', '.o', '.bin', '.pdf']:
-    #             return
+    def _scan_file(self, file_path):
+        """Scan single file for secrets"""
+        try:
+            if file_path.suffix in ['.pyc', '.so', '.o', '.bin', '.pdf']:
+                return
         
-    #         content = file_path.read_text(errors='ignore')
+            content = file_path.read_text(errors='ignore')
         
-    #     # Existing pattern matching
-    #         for secret_type, pattern in PATTERNS.items():
-    #             matches = re.finditer(pattern, content, re.IGNORECASE)
-    #             for match in matches:
-    #                 line_num = content[:match.start()].count('\n') + 1
-    #                 self.findings.append({
-    #                     'file': str(file_path),
-    #                     'type': secret_type,
-    #                     'line': line_num,
-    #                     'severity': self._get_severity(secret_type),
-    #                     'match_preview': match.group(0)[:50]
-    #                 })
+        # Existing pattern matching
+            for secret_type, pattern in PATTERNS.items():
+                matches = re.finditer(pattern, content, re.IGNORECASE)
+                for match in matches:
+                    line_num = content[:match.start()].count('\n') + 1
+                    self.findings.append({
+                        'file': str(file_path),
+                        'type': secret_type,
+                        'line': line_num,
+                        'severity': self._get_severity(secret_type),
+                        'match_preview': match.group(0)[:50]
+                    })
         
-    #     # NEW: Entropy-based detection
-    #         words = re.findall(r'\b[a-zA-Z0-9_\-\.]{8,}\b', content)
-    #         for word in words:
-    #             entropy = SecretScanner.calculate_entropy(word)
-    #             if entropy > 4.0:  # High entropy threshold
-    #                 # Skip common words
-    #                 if word.lower() not in ['localhost', 'database', 'configuration']:
-    #                     line_num = content.find(word) // len(content) * content.count('\n') + 1
-    #                     self.findings.append({
-    #                         'file': str(file_path),
-    #                         'type': 'high_entropy_string',
-    #                         'line': line_num,
-    #                         'severity': 'MEDIUM',
-    #                         'match_preview': word[:50]
-    #                     })
+        # NEW: Entropy-based detection
+            words = re.findall(r'\b[a-zA-Z0-9_\-\.]{8,}\b', content)
+            for word in words:
+                entropy = SecretScanner.calculate_entropy(word)
+                if entropy > 4.0:  # High entropy threshold
+                    # Skip common words
+                    if word.lower() not in ['localhost', 'database', 'configuration']:
+                        line_num = content.find(word) // len(content) * content.count('\n') + 1
+                        self.findings.append({
+                            'file': str(file_path),
+                            'type': 'high_entropy_string',
+                            'line': line_num,
+                            'severity': 'MEDIUM',
+                            'match_preview': word[:50]
+                        })
     
-    #     except Exception as e:
-    #         print(f"⚠️  Error scanning {file_path}: {e}")
+        except Exception as e:
+            print(f"⚠️  Error scanning {file_path}: {e}")
 
